@@ -1,0 +1,6 @@
+google-cloud-texttospeech
+fastapi
+uvicorn
+requests
+google-api-python-client
+google
