@@ -2,12 +2,14 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
+const apiUrl = "http://localhost:8000"
+
 const transcript = ref('')
 const isRecording = ref(false)
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition()
-sr.lang = 'vi-VN';
+// sr.lang = 'vi-VN';
 
 onMounted(() => {
 	sr.continuous = true
@@ -37,14 +39,15 @@ onMounted(() => {
 	}
 })
 
-const CheckForCommand = (result) => {
+const CheckForCommand = () => {
+  sr.stop()
 	axios
-        .post('/', {
-			message: transcript.value
-		})
-        .then((response) => {
-          console.log(response.data)
-        });
+    .put(apiUrl + `/messages:input?text=${transcript.value}`)
+    .then((response) => {
+      if (response.status === 200) {
+        transcript.value = response.data[0]?.text;
+      }
+    });
 }
 
 const ToggleMic = () => {
