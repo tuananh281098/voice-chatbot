@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-const apiUrl = "http://localhost:8000"
+const apiUrl = "https://voice-chatbot-api.saokhue.io"
 
 const transcript = ref('')
 const isRecording = ref(false)
