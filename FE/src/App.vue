@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-const apiUrl = "https://voice-chatbot-api.saokhue.io"
+const apiUrl = "http://localhost:8000"
 
 const transcript = ref('')
 const isRecording = ref(false)
@@ -45,7 +45,10 @@ const CheckForCommand = () => {
     .put(apiUrl + `/messages:input?text=${transcript.value}`)
     .then((response) => {
       if (response.status === 200) {
-        transcript.value = response.data[0]?.text;
+        console.log(response.data)
+        transcript.value = response.data.text;
+        const audio = new Audio("data:audio/mpeg;base64," + response.data.audio);
+        audio.play();
       }
     });
 }

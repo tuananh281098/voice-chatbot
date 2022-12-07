@@ -1,11 +1,11 @@
+import base64
+import io
 import json
 from typing import Literal, Union
-from fastapi import APIRouter, Depends
+from src.services.t2s_converter import T2SConverter
+from fastapi import APIRouter
 from fastapi.responses import StreamingResponse, PlainTextResponse
 import requests
-
-from src.service_register import get_t2s_converter
-from src.services.t2s_converter import T2SConverter
 
 router = APIRouter(prefix='/messages', tags=['messages'])
 
@@ -22,7 +22,6 @@ def input_text(text: str, format: Literal["text", "audio"] = "text"):
         }),
         timeout=30,
     )
-    print(resp)
-    return resp.json()
-    # audio = t2s_converter.convert(text=text)
-    # return StreamingResponse(content=audio, media_type="audio/mpeg")
+    converter = T2SConverter()
+    audio = converter.convert(text=resp.json()[0]['text'])
+    return {'audio': base64.b64encode(audio).decode("utf-8"), "text": resp.json()[0]['text']}
