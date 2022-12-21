@@ -9,7 +9,7 @@ const isRecording = ref(false)
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition()
-// sr.lang = 'vi-VN';
+sr.lang = 'vi-VN';
 
 onMounted(() => {
 	sr.continuous = true

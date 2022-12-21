@@ -8,7 +8,7 @@ class T2SConverter:
     def convert(self, text: str):
         synthesis_input = texttospeech.SynthesisInput(text=text)
         voice = texttospeech.VoiceSelectionParams(
-            language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+            language_code="vi-VN", ssml_gender=texttospeech.SsmlVoiceGender.MALE
         )
         audio_config = texttospeech.AudioConfig(
             audio_encoding=texttospeech.AudioEncoding.MP3
