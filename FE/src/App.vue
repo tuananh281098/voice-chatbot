@@ -1,11 +1,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import Loading from './components/Loading.vue'
+import Recording from './components/Recording.vue'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faMicrophoneAlt, faStop } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faMicrophoneAlt, faStop)
 
 const apiUrl = "https://voice-chatbot-api.saokhue.io"
 
 const transcript = ref('')
 const isRecording = ref(false)
+const isLoading = ref(false)
+const audio = ref();
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const sr = new Recognition()
@@ -41,15 +49,20 @@ onMounted(() => {
 
 const CheckForCommand = () => {
   sr.stop()
+  isLoading.value = true;
 	axios
     .put(apiUrl + `/messages:input?text=${transcript.value}`)
     .then((response) => {
       if (response.status === 200) {
         console.log(response.data)
         transcript.value = response.data.text;
-        const audio = new Audio("data:audio/mpeg;base64," + response.data.audio);
-        audio.play();
+        transcript.value = transcript.value.replaceAll('- Bước', '\n - Bước')
+        console.log(transcript.value);
+        audio.value = new Audio("data:audio/mpeg;base64," + response.data.audio);
+        audio.value.play();
       }
+    }).finally(() => {
+      isLoading.value = false;
     });
 }
 
@@ -57,6 +70,10 @@ const ToggleMic = () => {
 	if (isRecording.value) {
 		sr.stop()
 	} else {
+    if (audio.value) {
+      audio.value.pause();
+    }
+    audio.value = null;
 		sr.start()
 	}
 }
@@ -64,14 +81,26 @@ const ToggleMic = () => {
 
 <template>
 	<div class="app">
-		<button type="button" :class="`mic`" @click="ToggleMic">
-			{{ isRecording ? 'Stop' : 'Record' }}
-		</button>
-		<div class="transcript" v-text="transcript"></div>
+    <Loading v-if="isLoading" class="f-center" />
+    <Recording v-if="isRecording" class="f-center loading" />
+    <div class="transcript"> {{ transcript }}</div>
+    <div class="footer">
+        <!-- <button type="button" :class="`mic`" @click="ToggleMic">
+        {{ isRecording ? 'Stop' : 'Record' }}
+      </button> -->
+      <div class="micContainer" @click="ToggleMic">
+        <div v-if="isRecording" class="btn">
+          <font-awesome-icon icon="fa-solid fa-stop" />
+        </div>
+        <div v-else class="btn">
+          <font-awesome-icon icon="fa-solid fa-microphone-alt" />
+        </div>
+      </div>
+    </div>
 	</div>
 </template>
 
-<style>
+<style lang="scss">
 * {
 	margin: 0;
 	padding: 0;
@@ -79,20 +108,68 @@ const ToggleMic = () => {
 	font-family: 'Fira sans', sans-serif;
 }
 
+html, body, #app, .app {
+  height: 100%;
+}
+
+.loading {
+  position: absolute;
+  top: 1%;
+  left: 42%;
+}
+
+.f-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 body {
-	background: #281936;
-	color: #FFF;
+	background: #F2F2F2;
+	color: #3d3c3c;
 }
 
 .transcript {
 	font-size: 48px;
-    padding: 150px;
+  padding: 50px 150px;
+  white-space: break-spaces;
+  height: 90vh;
+  overflow: auto;
 }
 
-.mic {
-	position: absolute;
-    bottom: 5px;
-    left: 50%;
+.micContainer {
+  position: relative;
+  top: -40px;
+  display: flex;
+  justify-content: center;
 	padding: 8px;
+  width: 100px;
+  :hover {
+    cursor: pointer;
+  }
+  .btn {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f32424;
+    color: white;
+    box-shadow: 0px 0px 0px 6px #40414252;
+    :hover {
+      cursor: pointer;
+    }
+  }
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-radius: 33px 33px 0 0;
+  // background-color: #b6babe;
+  height: 30px;
 }
 </style>
