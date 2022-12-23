@@ -54,7 +54,6 @@ const CheckForCommand = () => {
     .put(apiUrl + `/messages:input?text=${transcript.value}`)
     .then((response) => {
       if (response.status === 200) {
-        console.log(response.data)
         transcript.value = response.data.text;
         transcript.value = transcript.value.replaceAll('- Bước', '\n - Bước')
         console.log(transcript.value);
@@ -85,9 +84,6 @@ const ToggleMic = () => {
     <Recording v-if="isRecording" class="f-center loading" />
     <div class="transcript"> {{ transcript }}</div>
     <div class="footer">
-        <!-- <button type="button" :class="`mic`" @click="ToggleMic">
-        {{ isRecording ? 'Stop' : 'Record' }}
-      </button> -->
       <div class="micContainer" @click="ToggleMic">
         <div v-if="isRecording" class="btn">
           <font-awesome-icon icon="fa-solid fa-stop" />
@@ -115,7 +111,7 @@ html, body, #app, .app {
 .loading {
   position: absolute;
   top: 1%;
-  left: 42%;
+  width: 100%;
 }
 
 .f-center {
@@ -135,6 +131,10 @@ body {
   white-space: break-spaces;
   height: 90vh;
   overflow: auto;
+  @media (max-width: 1023px) {
+    padding: 50px 30px;
+    font-size: 32px;
+  }
 }
 
 .micContainer {
